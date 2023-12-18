@@ -3,6 +3,7 @@ from typing import Dict, Any
 from collections.abc import Callable
 
 from core.miniframework.manager_layer.manager_layer import BackendManagerLayer, FrontendManagerLayer
+from core.miniframework.query_layer.data_query.query_cruds import QueryCRUDS
 
 class BaseManager(metaclass=ABCMeta):
     """
@@ -11,7 +12,7 @@ class BaseManager(metaclass=ABCMeta):
     여기에 구현
     """
 
-class CRUDmanager(BaseManager, FrontendManagerLayer, metaclass=ABCMeta):
+class CRUDManager(BaseManager, FrontendManagerLayer, metaclass=ABCMeta):
     """
     데이터베이스를 조작하기 위한 Manager
 

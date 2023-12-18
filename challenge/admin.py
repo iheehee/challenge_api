@@ -1,3 +1,16 @@
 from django.contrib import admin
+from . import models
 
-# Register your models here.
+
+@admin.register(models.Challenge)
+class ChallengeAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "title",
+        "owner",
+        "title_banner",
+        "summery",
+        "description",
+        "start_day",
+        "notice",
+    )
