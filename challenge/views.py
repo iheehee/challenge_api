@@ -37,4 +37,14 @@ class ChallengeDetailView(APIView):
         return Response(res, status.HTTP_200_OK)
     
     def put(self, request, pk):
-        pass
+        """
+        permission 관리자, 클라이언트이면서 개설한 챌린지가 내 것인 상태
+        
+        """
+        try:
+            req_data = request.data
+            res = ChallengeManager()._update(**req_data, pk)
+        except Exception as e:
+                return Response({'error': 'server error'},
+                                status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response(res, status.HTTP_200_OK)

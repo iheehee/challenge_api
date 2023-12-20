@@ -31,6 +31,12 @@ class ChallengeQueryReader(QueryReader):
         
         return serializer.data       
 
+class ChallengeQueryUpdator(QueryUpdator):
+    @transaction.atomic()
+    def __call__(self, challenge_data, pk):
+
+        
+
 class ChallengeQuery(QueryCRUDS):
     reader = ChallengeQueryReader()
-    
+    updator = ChallengeQueryUpdator()
