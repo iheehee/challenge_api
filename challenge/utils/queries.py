@@ -33,10 +33,13 @@ class ChallengeQueryReader(QueryReader):
 
 class ChallengeQueryUpdator(QueryUpdator):
     @transaction.atomic()
-    def __call__(self, challenge_data, pk):
-
+    def __call__(self, modified_challenge_data, pk):
+        challenge = Challenge.objects.filter(id=pk)[0]
+        serializer = ChallengeSerializer(challenge, data = modified_challenge_data)
+        serializer.is_valid()
+        serializer.save()
+        return serializer.data       
         
-
 class ChallengeQuery(QueryCRUDS):
     reader = ChallengeQueryReader()
     updator = ChallengeQueryUpdator()

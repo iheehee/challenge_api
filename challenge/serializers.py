@@ -27,3 +27,5 @@ class ChallengeSerializer(serializers.ModelSerializer):
             "certifications",
         )
         read_only_fields = ("id",)
+
+        

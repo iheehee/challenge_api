@@ -43,7 +43,8 @@ class ChallengeDetailView(APIView):
         """
         try:
             req_data = request.data
-            res = ChallengeManager()._update(**req_data, pk)
+            res = ChallengeManager()._update(req_data, pk)
+            print(res)
         except Exception as e:
                 return Response({'error': 'server error'},
                                 status.HTTP_500_INTERNAL_SERVER_ERROR)
