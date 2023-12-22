@@ -30,6 +30,7 @@ ALLOWED_HOSTS = []
 CUSTOM_APPS = [
     'user.apps.UserConfig',
     'challenge.apps.ChallengeConfig',
+    'access.apps.AccessConfig',
 ]
 # Application definition
 
