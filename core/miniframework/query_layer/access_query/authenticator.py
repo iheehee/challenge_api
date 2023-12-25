@@ -29,6 +29,7 @@ class AuthenticateCodeSender(metaclass=ABCMeta):
     :function generate_code: 인증코드 생성 함수
     :function send_code: 인증코드 발송
     """
+
     ttl: int
 
     def get_ttl_second(self):
@@ -61,16 +62,10 @@ class AuthenticateTokenGenerator(metaclass=ABCMeta):
     JWT 토큰을 생성하는 클래스
     """
 
-    app_name: str
     issue: str
-    expire_len: int     # minue
+    expire_len: int  # minue
 
     def generate(self, audience) -> str:
         return write_jwt(
-            app_name=self.app_name,
-            issue=self.issue,
-            audience=audience,
-            expire_len=self.expire_len
+            issue=self.issue, audience=audience, expire_len=self.expire_len
         )
-    
-    

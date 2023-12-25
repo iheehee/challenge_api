@@ -29,5 +29,30 @@ class UserQueryReader(QueryReader):
             return None
         return UserSerializer(obj).data
 
+
+class UserQueryCreator(QueryCreator):
+    """
+    유저 생성
+    """
+
+    def __call__(self, email: str, password: str, nickname: str):
+        req = {
+            'nickname': nickname,
+            'password': password,
+
+            'email': email
+        }
+        user_serializer = UserSerializer(data=req)
+        user_serializer.is_valid(raise_exception=True)
+        user_serializer.save()
+        data = user_serializer.data
+
+        # password 부분 삭제
+        del data['password']
+
+        return data
+    
+
 class UserQuery(QueryCRUDS):
     reader = UserQueryReader()
+    creator = UserQueryCreator()
