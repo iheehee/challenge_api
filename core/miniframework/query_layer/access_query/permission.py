@@ -91,9 +91,11 @@ class PermissionIssueChecker(PermissionChecker, metaclass=ABCMeta):
 
     def __init__(self, data):
         super().__init__(data)
+        print("로그인 통과")
 
     def check(self) -> bool:
         self.checked = self.data == self.issue
+        print("로그인 체크 통과")
 
 
 class PermissionAllAllowed(PermissionChecker):

@@ -1,6 +1,7 @@
 from core.miniframework.query_layer.access_query.permission import (
     PermissionIssueChecker,
     PermissionLevelChecker,
+    PermissionSameUserChecker,
 )
 
 
@@ -18,3 +19,7 @@ class FindingPasswordPermissionChecker(PermissionIssueChecker):
 
 class AdminPermissionChecker(PermissionLevelChecker):
     level = "admin"
+
+
+class IsOwnerPermissionChechker(PermissionSameUserChecker):
+    target_user = None

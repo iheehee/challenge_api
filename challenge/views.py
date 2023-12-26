@@ -1,8 +1,10 @@
+import jwt.exceptions
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from challenge.utils.managers import ChallengeManager
+from core.miniframework.exc import TokenExpiredError
 
 
 # Create your views here.
@@ -48,8 +50,11 @@ class ChallengeDetailView(APIView):
         """
         try:
             req_data = request.data
-            res = ChallengeManager()._update(req_data, pk)
-            print(res)
+
+            res = ChallengeManager().update_challenge(
+                req_data, challenge_id=pk, access_token=request.headers["Access"]
+            )
+
         except KeyError:
             return Response({"error": "접근할 수 없는 API 입니다."}, status.HTTP_403_FORBIDDEN)
         except (PermissionError, jwt.exceptions.DecodeError):

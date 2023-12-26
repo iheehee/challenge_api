@@ -16,7 +16,6 @@ def check_login(_, email, password):
 
 
 class LoginTokenGenerator(AuthenticateTokenGenerator):
-    app_name = "wanted-company-searcher"
     issue = "login"
     # 30일
     expire_len = 60 * 24 * 30
