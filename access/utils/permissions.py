@@ -21,5 +21,7 @@ class AdminPermissionChecker(PermissionLevelChecker):
     level = "admin"
 
 
-class IsOwnerPermissionChechker(PermissionSameUserChecker):
-    target_user = None
+USER_LEVEL_MAP = {
+    0: "admin",
+    1: "client",
+}

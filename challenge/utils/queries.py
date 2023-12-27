@@ -10,7 +10,8 @@ from core.miniframework.query_layer.data_query.query_methods import (
     QueryReader,
     QueryCreator,
     QuerySearcher,
-    QueryDestroyer, QueryUpdator
+    QueryDestroyer,
+    QueryUpdator,
 )
 
 from user.models import User
@@ -20,26 +21,38 @@ from user.models import User
 class ChallengeQueryReader(QueryReader):
     # 챌린지 불러오기
     challenge = None
-    
+
     def __call__(self, pk):
         if pk == None:
             challenge = Challenge.objects.all()
-            
-        else: 
+
+        else:
             challenge = Challenge.objects.filter(id=pk)
         serializer = ChallengeSerializer(challenge, many=True)
-        
-        return serializer.data       
+
+        return serializer.data
+
+
+class ChallengeQueryCreator(QueryCreator):
+    @transaction.atomic()
+    def __call__(self, challenge_data, user):
+        serializer = ChallengeSerializer(data=challenge_data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(owner=user)
+        return serializer.data
+
 
 class ChallengeQueryUpdator(QueryUpdator):
     @transaction.atomic()
-    def __call__(self, modified_challenge_data, pk):
-        challenge = Challenge.objects.filter(id=pk)[0]
-        serializer = ChallengeSerializer(challenge, data = modified_challenge_data)
+    def __call__(self, modified_challenge_data, challenge_id):
+        challenge = Challenge.objects.filter(id=challenge_id)[0]
+        serializer = ChallengeSerializer(challenge, data=modified_challenge_data)
         serializer.is_valid()
         serializer.save()
-        return serializer.data       
-        
+        return serializer.data
+
+
 class ChallengeQuery(QueryCRUDS):
     reader = ChallengeQueryReader()
+    creator = ChallengeQueryCreator()
     updator = ChallengeQueryUpdator()

@@ -5,9 +5,10 @@ import datetime
 
 from core.miniframework.exc import TokenExpiredError
 
-JWT_KEY = os.environ.get("JWT_KEY")
-# JWT_KEY = "ckFXaWtRWENtSTA2QnpGVmxWNlBySWF4cUk1Q1pxbHU="
-JWT_ALGORITHM = os.environ.get("JWT_ALGORITHM")
+# JWT_KEY = os.environ.get("JWT_KEY")
+JWT_KEY = "ckFXaWtRWENtSTA2QnpGVmxWNlBySWF4cUk1Q1pxbHU="
+# JWT_ALGORITHM = os.environ.get("JWT_ALGORITHM")
+JWT_ALGORITHM = "HS256"
 DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
 
 

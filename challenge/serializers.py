@@ -3,8 +3,8 @@ from .models import (
 )
 from rest_framework import serializers
 
-class ChallengeSerializer(serializers.ModelSerializer):
 
+class ChallengeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Challenge
         fields = (
@@ -27,5 +27,3 @@ class ChallengeSerializer(serializers.ModelSerializer):
             "certifications",
         )
         read_only_fields = ("id",)
-
-        

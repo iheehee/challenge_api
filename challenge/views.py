@@ -1,5 +1,8 @@
+from ast import literal_eval
+
+import django.db.utils
 import jwt.exceptions
-from rest_framework import status
+from rest_framework import status, serializers
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -23,6 +26,32 @@ class ChallengeView(APIView):
             )
 
         return Response(res, status.HTTP_200_OK)
+
+
+class ChallengeCreateView(APIView):
+    """
+    (POST)  /api/company    회사 생성
+    """
+
+    def post(self, request):
+        req_data = request.data
+        try:
+            res = ChallengeManager().create_challenge(
+                challenge_data=req_data, access_token=request.headers["Access"]
+            )
+        except KeyError:
+            return Response({"error": "접근할 수 없는 API 입니다."}, status.HTTP_403_FORBIDDEN)
+        except TokenExpiredError:
+            return Response({"error": "토큰이 만료되었습니다."}, status.HTTP_403_FORBIDDEN)
+        except (PermissionError, jwt.exceptions.DecodeError):
+            return Response({"error": "유효한 토큰이 아닙니다."}, status.HTTP_403_FORBIDDEN)
+        except (serializers.ValidationError, django.db.utils.IntegrityError) as e:
+            return Response(str(e), status.HTTP_400_BAD_REQUEST)
+        except Exception:
+            return Response(
+                {"error": "server error"}, status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+        return Response(res, status.HTTP_201_CREATED)
 
 
 class ChallengeDetailView(APIView):
@@ -50,7 +79,6 @@ class ChallengeDetailView(APIView):
         """
         try:
             req_data = request.data
-
             res = ChallengeManager().update_challenge(
                 req_data, challenge_id=pk, access_token=request.headers["Access"]
             )
