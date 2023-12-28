@@ -3,6 +3,7 @@ from core.models import TimeStampModel
 from django.core.validators import MaxValueValidator, FileExtensionValidator
 import os
 
+
 class Challenge(TimeStampModel):
     FREQUENCY = (
         ("주 1일", 1),
@@ -39,7 +40,7 @@ class Challenge(TimeStampModel):
     start_time = models.CharField(max_length=30, default="", blank=True)
     end_time = models.CharField(max_length=30, default="", blank=True)
     notice = models.TextField(blank=True)
-    #photo_example = models.ManyToManyField("SuccessPhotoExample", default="")
+    # photo_example = models.ManyToManyField("SuccessPhotoExample", default="")
     member = models.ManyToManyField(
         "user.Profile",
         through="ChallengeApply",
@@ -50,6 +51,7 @@ class Challenge(TimeStampModel):
     def __str__(self):
         return self.title
 
+
 def upload_to_certi_photo_example(instance, file_name):
     return os.path.join(
         instance.owner.email,
@@ -57,6 +59,7 @@ def upload_to_certi_photo_example(instance, file_name):
         "photo_ex",
         file_name,
     )
+
 
 class PhotoExample(models.Model):
     challenge_name = models.ForeignKey(
@@ -107,6 +110,7 @@ class ChallengeApply(models.Model):
     )
     created = models.DateTimeField(auto_now=True)
 
+
 class Certification(TimeStampModel):
     certification_id = models.AutoField(primary_key=True)
     challenge = models.ForeignKey(
@@ -128,4 +132,3 @@ class Certification(TimeStampModel):
         upload_to="certification", blank=True, default=""
     )
     certification_comment = models.CharField(max_length=255, blank=True)
-    

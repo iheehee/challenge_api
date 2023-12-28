@@ -9,12 +9,9 @@ from core.miniframework.query_layer.data_query.query_cruds import QueryCRUDS
 from core.miniframework.query_layer.data_query.query_methods import (
     QueryReader,
     QueryCreator,
-    QuerySearcher,
     QueryDestroyer,
     QueryUpdator,
 )
-
-from user.models import User
 
 
 # noinspection PyUnresolvedReferences
@@ -52,7 +49,17 @@ class ChallengeQueryUpdator(QueryUpdator):
         return serializer.data
 
 
+class ChallengeQueryDestroyer(QueryDestroyer):
+    @transaction.atomic()
+    def __call__(self, challenge_id):
+        challenge = Challenge.objects.filter(id=challenge_id)
+        challenge.delete()
+        message = "챌린지가 삭제되었습니다."
+        return message
+
+
 class ChallengeQuery(QueryCRUDS):
     reader = ChallengeQueryReader()
     creator = ChallengeQueryCreator()
     updator = ChallengeQueryUpdator()
+    destroyer = ChallengeQueryDestroyer()

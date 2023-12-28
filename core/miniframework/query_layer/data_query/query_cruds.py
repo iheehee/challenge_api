@@ -11,7 +11,7 @@ class QueryCRUD(metaclass=ABCMeta):
 
     def _run_query(self, method: Optional[QueryMethod], *args, **kwargs):
         if not method:
-            raise PermissionError('method not allowed')
+            raise PermissionError("method not allowed")
         return method(*args, **kwargs)
 
     def create(self, *args, **kwargs):

@@ -62,7 +62,7 @@ class PermissionSameUserChecker(PermissionChecker):
         super().__init__(data)
         self.target_user = target_user
 
-    def check(self):
+    def check(self) -> bool:
         self.checked = self.data == self.target_user
 
 
