@@ -21,6 +21,10 @@ class AdminPermissionChecker(PermissionLevelChecker):
     level = "admin"
 
 
+class ClientPermissionChecker(PermissionLevelChecker):
+    level = "client"
+
+
 USER_LEVEL_MAP = {
     0: "admin",
     1: "client",

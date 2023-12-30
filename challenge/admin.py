@@ -14,3 +14,12 @@ class ChallengeAdmin(admin.ModelAdmin):
         "start_day",
         "notice",
     )
+
+
+@admin.register(models.ChallengeApply)
+class ChallengeApplyAdmin(admin.ModelAdmin):
+    list_display = (
+        "challenge",
+        "user",
+        "created",
+    )

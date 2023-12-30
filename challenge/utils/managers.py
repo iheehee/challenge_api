@@ -3,6 +3,7 @@ from challenge.utils.queries.apply_queries import ChallengeApplyQuery
 from access.utils.permissions import (
     LoginPermissionChecker as LoginOnly,
     AdminPermissionChecker as AdminOnly,
+    ClientPermissionChecker as ClientOnly,
     USER_LEVEL_MAP,
 )
 from core.miniframework.query_layer.access_query.permission import (
@@ -39,6 +40,7 @@ class ChallengeManager(CRUDManager):
         user = User.objects.get(email=email)
         user_lv = USER_LEVEL_MAP[user.level]
         # 챌린지를 만드려면 해당 유저는 로그인이 되어 있거나 Admin 이면 가능하다.
+
         if not bool(AdminOnly(user_lv) | LoginOnly(issue)):
             raise PermissionError("Permission Failed")
 
@@ -113,14 +115,15 @@ class ChallengeApplyManager(CRUDManager):
         # 토큰 데이터 추출
         issue, user_email = read_jwt(access_token)
         user = User.objects.get(email=user_email)
-        target_challenge_owner = Challenge.objects.get(id=challenge_id).owner.email
+        user_lv = USER_LEVEL_MAP[user.level]
+
         """ 
         챌린지에 참여하려면 로그인 상태여야 한다.
-        
+        클라이언트 레벨이어야 한다.
         본인이 만든 챌린지에는 참여할 수 없다(쿼리단에서 구현).
         """
-        is_available = LoginOnly(issue) & AllAllow()
-        print(bool(is_available))
+        is_available = LoginOnly(issue) & ClientOnly(user_lv)
+
         if not bool(is_available):
             raise PermissionError("Permission Failed")
 

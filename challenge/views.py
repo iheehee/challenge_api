@@ -8,6 +8,7 @@ from rest_framework.views import APIView
 
 from challenge.utils.managers import ChallengeManager, ChallengeApplyManager
 from core.miniframework.exc import TokenExpiredError
+from django.core.exceptions import ValidationError
 
 
 # Create your views here.
@@ -128,6 +129,7 @@ class ChallengeApplyView(APIView):
             res = ChallengeApplyManager().apply_challenge(
                 challenge_id=pk, access_token=request.headers["Access"]
             )
+        # except
         except KeyError:
             return Response({"error": "접근할 수 없는 API 입니다."}, status.HTTP_403_FORBIDDEN)
         except TokenExpiredError:
@@ -136,6 +138,8 @@ class ChallengeApplyView(APIView):
             return Response({"error": "유효한 토큰이 아닙니다."}, status.HTTP_403_FORBIDDEN)
         except (serializers.ValidationError, django.db.utils.IntegrityError) as e:
             return Response(str(e), status.HTTP_400_BAD_REQUEST)
+        except ValidationError:
+            return Response({"error": "챌린지 참여 인원이 다 찼습니다."})
         except Exception:
             return Response(
                 {"error": "server error"}, status.HTTP_500_INTERNAL_SERVER_ERROR
