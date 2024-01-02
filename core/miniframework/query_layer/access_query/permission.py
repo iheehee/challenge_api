@@ -56,14 +56,34 @@ class PermissionSameUserChecker(PermissionChecker):
     예를 들어 회사를 삭제할 경우 해당 회사를 만든 사람만이 삭제할 수 있어야 한다.
     """
 
-    # target_user: Optional[str] = None
+    target_user: Optional[str] = None
 
     def __init__(self, data, target_user=None):
         super().__init__(data)
         self.target_user = target_user
 
     def check(self) -> bool:
+        # print(self.data == self.target_user)
         self.checked = self.data == self.target_user
+
+
+class PermissionJoinedUserChecker(PermissionChecker):
+    """
+    해당 유저의 챌린지 가입 여부를 확인한다.
+
+    챌린지에 가입한 유저는 또 가입할 수 없다.
+    챌린지에 가입한 유저여야만 탈퇴를 할 수 있다.
+    """
+
+    target_challenge_member_list: Optional[list] = None
+
+    def __init__(self, data, target_challenge_member_list=None):
+        super().__init__(data)
+        self.target_challenge_member_list = target_challenge_member_list
+
+    def check(self) -> bool:
+        # print(self.data in self.target_challenge_member_list)
+        self.checked = self.data in self.target_challenge_member_list
 
 
 class PermissionLevelChecker(PermissionChecker, metaclass=ABCMeta):

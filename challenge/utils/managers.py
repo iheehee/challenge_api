@@ -8,6 +8,7 @@ from access.utils.permissions import (
 )
 from core.miniframework.query_layer.access_query.permission import (
     PermissionSameUserChecker as IsOwner,
+    PermissionJoinedUserChecker as JoinedUser,
     PermissionAllAllowed as AllAllow,
 )
 
@@ -89,7 +90,8 @@ class ChallengeManager(CRUDManager):
         
         """
         is_available = (
-            IsOwner(user_email, target_challenge_owner) | AdminOnly(user_lv)
+            IsOwner(user_email, target_challenge_owner, owner_or_not=True)
+            | AdminOnly(user_lv)
         ) & LoginOnly(issue)
 
         if not bool(is_available):
@@ -109,23 +111,63 @@ class ChallengeApplyManager(CRUDManager):
         토큰 만료: TokenExpiredError
         권한이 안됨: PermissionError
         알수 없는 에러: exception
-        유효하지 않은 값 입력: serializers.ValidationError
         """
 
         # 토큰 데이터 추출
         issue, user_email = read_jwt(access_token)
         user = User.objects.get(email=user_email)
         user_lv = USER_LEVEL_MAP[user.level]
+        target_challenge_owner = Challenge.objects.filter(
+            id=challenge_id
+        ).select_related("owner")[0]
+
+        target_challenge_member_list = Challenge.objects.filter(
+            id=challenge_id
+        ).prefetch_related("member")
 
         """ 
         챌린지에 참여하려면 로그인 상태여야 한다.
         클라이언트 레벨이어야 한다.
-        본인이 만든 챌린지에는 참여할 수 없다(쿼리단에서 구현).
+        본인이 만든 챌린지가 아니어야 한다.
+        이미 참여한 참여자가 아니어야 한다.
         """
         is_available = LoginOnly(issue) & ClientOnly(user_lv)
+        is_owner_joined = IsOwner(
+            user_email, target_challenge_owner.owner.email
+        ) & JoinedUser(user.profile, target_challenge_member_list)
+
+        if not bool(is_available):
+            raise PermissionError("Permission Failed")
+        if bool(is_owner_joined):
+            raise PermissionError("Permission Failed")
+        # 생성
+        return self._create(challenge_id=challenge_id, user=user)
+
+    def remove_applied_challenge(self, challenge_id, access_token):
+        """
+        참여한 챌린지 탈퇴
+
+        디코딩 실패: jwt.exceptions.DecodeError
+        토큰 만료: TokenExpiredError
+        권한이 안됨: PermissionError
+        알수 없는 에러: exception
+        """
+        issue, user_email = read_jwt(access_token)
+        user = User.objects.get(email=user_email)
+        user_lv = USER_LEVEL_MAP[user.level]
+        challenge_member_list = Challenge.objects.get(id=challenge_id).member.all()
+
+        """ 
+        챌린지에 참여하려면 로그인 상태여야 한다.
+        클라이언트 레벨이어야 한다.
+        가입된 챌린지에 한에서 탈퇴할 수 있다.
+        """
+        is_available = (LoginOnly(issue) & ClientOnly(user_lv)) & JoinedUser(
+            user.profile, challenge_member_list
+        )
 
         if not bool(is_available):
             raise PermissionError("Permission Failed")
 
-        # 생성
-        return self._create(challenge_id=challenge_id, user=user)
+        # 삭제
+        return self._destroy(challenge_id=challenge_id, user=user)

@@ -36,8 +36,16 @@ class ChallengeQueryApply(QueryCreator):
 class ChallengeQueryLeave(QueryDestroyer):
     """챌린지 탈퇴를 위한 쿼리"""
 
-    def __call__(self, *args, **kwargs):
-        return super().__call__(*args, **kwargs)
+    def __call__(self, challenge_id, user):
+        try:
+            target_Applied_challenge = ChallengeApply.objects.get(
+                user=user.profile, challenge_id=challenge_id
+            )
+        except:
+            raise ValueError("삭제하고자 하는 챌린지가 없습니다.")
+        target_Applied_challenge.delete()
+        message = "챌린지를 탈퇴하였습니다."
+        return message
 
 
 class ChallengeApplyQuery(QueryCRUDS):

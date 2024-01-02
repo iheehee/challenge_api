@@ -33,9 +33,9 @@ class ChallengeQueryReader(QueryReader):
 class ChallengeQueryCreator(QueryCreator):
     @transaction.atomic()
     def __call__(self, challenge_data, user):
-        serializer = ChallengeSerializer(data=challenge_data)
+        serializer = ChallengeSerializer(data=challenge_data, context={"user": user})
         serializer.is_valid(raise_exception=True)
-        serializer.save(owner=user)
+        serializer.save()
         return serializer.data
 
 

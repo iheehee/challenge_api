@@ -139,9 +139,29 @@ class ChallengeApplyView(APIView):
         except (serializers.ValidationError, django.db.utils.IntegrityError) as e:
             return Response(str(e), status.HTTP_400_BAD_REQUEST)
         except ValidationError:
-            return Response({"error": "챌린지 참여 인원이 다 찼습니다."})
+            return Response({"error": "챌린지 참여 인원이 다 찼습니다."}, status.HTTP_409_CONFLICT)
         except Exception:
             return Response(
                 {"error": "server error"}, status.HTTP_500_INTERNAL_SERVER_ERROR
             )
         return Response(res, status.HTTP_201_CREATED)
+
+    def delete(self, request, pk):
+        try:
+            res = ChallengeApplyManager().remove_applied_challenge(
+                challenge_id=pk,
+                access_token=request.headers["Access"],
+            )
+        except KeyError:
+            return Response({"error": "접근할 수 없는 API 입니다."}, status.HTTP_403_FORBIDDEN)
+        except TokenExpiredError:
+            return Response({"error": "토큰이 만료되었습니다."}, status.HTTP_403_FORBIDDEN)
+        except (PermissionError, jwt.exceptions.DecodeError):
+            return Response({"error": "유효한 토큰이 아닙니다."}, status.HTTP_403_FORBIDDEN)
+        except ValueError:
+            return Response({"error": "삭제하고자 하는 챌린지가 없습니다."}, status.HTTP_404_NOT_FOUND)
+        except Exception:
+            return Response(
+                {"error": "server error"}, status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+        return Response(res, status=status.HTTP_204_NO_CONTENT)

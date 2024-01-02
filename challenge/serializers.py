@@ -1,6 +1,4 @@
-from .models import (
-    Challenge,
-)
+from .models import Challenge, ChallengeApply
 from rest_framework import serializers
 
 
@@ -27,3 +25,9 @@ class ChallengeSerializer(serializers.ModelSerializer):
             "certifications",
         )
         read_only_fields = ("id",)
+
+    def create(self, validated_data):
+        user = self.context["user"]
+        new_challenge = Challenge.objects.create(**validated_data, owner=user)
+        ChallengeApply.object.create(challenge=new_challenge, user=user.profile)
+        return new_challenge
