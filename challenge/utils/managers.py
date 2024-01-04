@@ -1,5 +1,6 @@
 from challenge.utils.queries.challenge_queries import ChallengeQuery
 from challenge.utils.queries.apply_queries import ChallengeApplyQuery
+from challenge.utils.queries.certification_queries import CertificationQuery
 from access.utils.permissions import (
     LoginPermissionChecker as LoginOnly,
     AdminPermissionChecker as AdminOnly,
@@ -90,8 +91,7 @@ class ChallengeManager(CRUDManager):
         
         """
         is_available = (
-            IsOwner(user_email, target_challenge_owner, owner_or_not=True)
-            | AdminOnly(user_lv)
+            IsOwner(user_email, target_challenge_owner) | AdminOnly(user_lv)
         ) & LoginOnly(issue)
 
         if not bool(is_available):
@@ -171,3 +171,46 @@ class ChallengeApplyManager(CRUDManager):
 
         # 삭제
         return self._destroy(challenge_id=challenge_id, user=user)
+
+
+class CertificationManager(CRUDManager):
+    cruds_query = CertificationQuery()
+
+    def create_certification(self, challenge_id, comment, image, access_token):
+        """
+        챌린지 인증
+
+        디코딩 실패: jwt.exceptions.DecodeError
+        토큰 만료: TokenExpiredError
+        권한이 안됨: PermissionError
+        알수 없는 에러: exception
+        """
+
+        # 토큰 데이터 추출
+        issue, user_email = read_jwt(access_token)
+        user = User.objects.get(email=user_email)
+        user_lv = USER_LEVEL_MAP[user.level]
+
+        target_challenge_member_list = Challenge.objects.filter(
+            id=challenge_id
+        ).prefetch_related("profile_set")
+        joined_member_list = target_challenge_member_list[0].member.all()
+
+        """ 
+        챌린지 인증을 하려면 로그인 상태여야 한다.
+        클라이언트 레벨이어야 한다.
+        가입된 챌린지어야 한다.
+        진행 중인 챌린지어야 한다.(쿼리단에서 구현)
+        """
+        is_available = (LoginOnly(issue) & ClientOnly(user_lv)) & JoinedUser(
+            user.profile, joined_member_list
+        )
+
+        if not bool(is_available):
+            raise PermissionError("Permission Failed")
+
+        # 생성
+        return self._create(challenge_id, user, comment, image)
+
+    def get_certification_info(self, pk, certification_id=None):
+        return self._read(pk, certification_id)

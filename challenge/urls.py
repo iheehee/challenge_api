@@ -5,6 +5,9 @@ from challenge.views import (
     ChallengeDetailView,
     ChallengeCreateView,
     ChallengeApplyView,
+    CertificatinoListView,
+    CertificatinoCreateView,
+    CertificatinoDetailView,
 )
 
 urlpatterns = [
@@ -12,4 +15,10 @@ urlpatterns = [
     path("create/", ChallengeCreateView.as_view()),
     path("<int:pk>/", ChallengeDetailView.as_view()),
     path("<int:pk>/apply/", ChallengeApplyView.as_view()),
+    path("<int:pk>/certification/", CertificatinoListView.as_view()),
+    path("<int:pk>/certification/create/", CertificatinoCreateView.as_view()),
+    path(
+        "<int:pk>/certification/<int:certification_id>/",
+        CertificatinoDetailView.as_view(),
+    ),
 ]

@@ -6,7 +6,11 @@ from rest_framework import status, serializers
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from challenge.utils.managers import ChallengeManager, ChallengeApplyManager
+from challenge.utils.managers import (
+    ChallengeManager,
+    ChallengeApplyManager,
+    CertificationManager,
+)
 from core.miniframework.exc import TokenExpiredError
 from django.core.exceptions import ValidationError
 
@@ -120,7 +124,7 @@ class ChallengeDetailView(APIView):
 
 class ChallengeApplyView(APIView):
     """
-    (POST) /api/challenge/<pk:int>/apply    챌린지 가입하기
+    (POST) /api/challenge/<pk:int>/apply    챌린지 가입
     (DELETE) /api/challenge/<pk:int>/apply  챌린지 탈퇴
     """
 
@@ -165,3 +169,101 @@ class ChallengeApplyView(APIView):
                 {"error": "server error"}, status.HTTP_500_INTERNAL_SERVER_ERROR
             )
         return Response(res, status=status.HTTP_204_NO_CONTENT)
+
+
+class CertificatinoCreateView(APIView):
+    """
+    (GET) /api/challenge/<pk:int>/certification 챌린지 인증 리스트 조회
+    (POST) /api/challenge/<pk:int>/certification    챌린지 인증
+    (DELETE) /api/challenge/<pk:int>/certification  챌린지 인증 삭제
+    """
+
+    def post(self, request, pk):
+        try:
+            document = request.data.get("document")
+            image = request.data.get("file")
+            token = request.headers["Access"]
+            res = CertificationManager().create_certification(
+                challenge_id=pk,
+                comment=document["certification_comment"],
+                image=image,
+                access_token=token,
+            )
+        except KeyError:
+            return Response({"error": "접근할 수 없는 API 입니다."}, status.HTTP_403_FORBIDDEN)
+        except TokenExpiredError:
+            return Response({"error": "토큰이 만료되었습니다."}, status.HTTP_403_FORBIDDEN)
+        except (PermissionError, jwt.exceptions.DecodeError):
+            return Response({"error": "유효한 토큰이 아닙니다."}, status.HTTP_403_FORBIDDEN)
+        except (serializers.ValidationError, django.db.utils.IntegrityError) as e:
+            return Response(str(e), status.HTTP_400_BAD_REQUEST)
+        except ValidationError:
+            return Response({"error": "챌린지 참여 인원이 다 찼습니다."}, status.HTTP_409_CONFLICT)
+        except Exception:
+            return Response(
+                {"error": "server error"}, status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+        return Response(res, status.HTTP_201_CREATED)
+
+
+class CertificatinoListView(APIView):
+    """
+    (GET) /api/challenge/<pk:int>/certification/ 챌린지 인증 리스트 조회
+    """
+
+    def get(self, request, pk):
+        try:
+            res = CertificationManager().get_certification_info(pk)
+
+        except Exception:
+            return Response(
+                {"error": "server error"}, status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+        return Response(res, status.HTTP_200_OK)
+
+
+class CertificatinoDetailView(APIView):
+    """
+    (GET) /api/challenge/<pk:int>/certification/<certification_id:int> 챌린지 인증 디테일 페이지 조회
+    (PATCH) /api/challenge/<pk:int>/certification/<certification_id:int> 챌린지 인증 수정
+    (DELETE) /api/challenge/<pk:int>/certification//<certification_id:int>  챌린지 인증 삭제
+    """
+
+    def get(self, request, pk, certification_id):
+        try:
+            res = CertificationManager().get_certification_info(pk, certification_id)
+
+        except Exception:
+            return Response(
+                {"error": "server error"}, status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+        return Response(res, status.HTTP_200_OK)
+
+    def post(self, request, certification_id):
+        try:
+            document = request.data.get("document")
+            image = request.data.get("file")
+            token = request.headers["Access"]
+            res = CertificationManager().create_certification(
+                challenge_id=certification_id,
+                comment=document["certification_comment"],
+                image=image,
+                access_token=token,
+            )
+        except KeyError:
+            return Response({"error": "접근할 수 없는 API 입니다."}, status.HTTP_403_FORBIDDEN)
+        except TokenExpiredError:
+            return Response({"error": "토큰이 만료되었습니다."}, status.HTTP_403_FORBIDDEN)
+        except (PermissionError, jwt.exceptions.DecodeError):
+            return Response({"error": "유효한 토큰이 아닙니다."}, status.HTTP_403_FORBIDDEN)
+        except (serializers.ValidationError, django.db.utils.IntegrityError) as e:
+            return Response(str(e), status.HTTP_400_BAD_REQUEST)
+        except ValidationError:
+            return Response({"error": "챌린지 참여 인원이 다 찼습니다."}, status.HTTP_409_CONFLICT)
+        except Exception:
+            return Response(
+                {"error": "server error"}, status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+        return Response(res, status.HTTP_201_CREATED)

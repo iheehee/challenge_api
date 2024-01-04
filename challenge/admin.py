@@ -23,3 +23,15 @@ class ChallengeApplyAdmin(admin.ModelAdmin):
         "user",
         "created",
     )
+
+
+@admin.register(models.Certification)
+class CertificationAdmin(admin.ModelAdmin):
+    list_display = (
+        "certification_id",
+        "challenge",
+        "user",
+        "certification_date",
+        "certification_photo",
+        "certification_comment",
+    )

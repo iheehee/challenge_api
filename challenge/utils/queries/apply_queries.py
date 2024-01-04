@@ -2,14 +2,13 @@ from typing import Dict, Optional, List, Any
 
 from django.db import transaction
 
-from challenge.models import Challenge, ChallengeApply, Certification
+from challenge.models import Challenge, ChallengeApply
 from challenge.serializers import ChallengeSerializer
 from core.miniframework.query_layer.data_query.query_cruds import QueryCRUDS
 from core.miniframework.query_layer.data_query.query_methods import (
     QueryReader,
     QueryCreator,
     QueryDestroyer,
-    QueryUpdator,
 )
 from django.core.exceptions import ValidationError
 

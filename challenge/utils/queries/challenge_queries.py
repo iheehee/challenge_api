@@ -44,7 +44,7 @@ class ChallengeQueryUpdator(QueryUpdator):
     def __call__(self, modified_challenge_data, challenge_id):
         challenge = Challenge.objects.filter(id=challenge_id)[0]
         serializer = ChallengeSerializer(challenge, data=modified_challenge_data)
-        serializer.is_valid()
+        serializer.is_valid(raise_exception=True)
         serializer.save()
         return serializer.data
 

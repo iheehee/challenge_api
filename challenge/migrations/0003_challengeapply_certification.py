@@ -5,36 +5,77 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('user', '0002_profile'),
-        ('challenge', '0002_initial'),
+        ("user", "0002_profile"),
+        ("challenge", "0002_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='ChallengeApply',
+            name="ChallengeApply",
             fields=[
-                ('applied_id', models.AutoField(primary_key=True, serialize=False)),
-                ('created', models.DateTimeField(auto_now=True)),
-                ('challenge', models.ForeignKey(default='', on_delete=django.db.models.deletion.CASCADE, related_name='challenge_name', to='challenge.challenge', verbose_name='challenge name')),
-                ('user', models.ForeignKey(default='', on_delete=django.db.models.deletion.CASCADE, related_name='member_name', to='user.profile', verbose_name='member name')),
+                ("applied_id", models.AutoField(primary_key=True, serialize=False)),
+                ("created", models.DateTimeField(auto_now=True)),
+                (
+                    "challenge",
+                    models.ForeignKey(
+                        default="",
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="challenge_name",
+                        to="challenge.challenge",
+                        verbose_name="challenge name",
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        default="",
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="member_name",
+                        to="user.profile",
+                        verbose_name="member name",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Certification',
+            name="Certification",
             fields=[
-                ('created', models.DateTimeField(auto_now=True)),
-                ('modified', models.DateTimeField(auto_now_add=True)),
-                ('certification_id', models.AutoField(primary_key=True, serialize=False)),
-                ('certification_date', models.DateTimeField(auto_now=True)),
-                ('certification_photo', models.FileField(blank=True, default='', upload_to='certification')),
-                ('certification_comment', models.CharField(blank=True, max_length=255)),
-                ('challenge', models.ForeignKey(default='', on_delete=django.db.models.deletion.CASCADE, related_name='certification_challenge', to='challenge.challenge', verbose_name='challenge name')),
-                ('user', models.ForeignKey(default='', on_delete=django.db.models.deletion.CASCADE, related_name='certification_profile', to='user.profile', verbose_name='member name')),
+                ("created", models.DateTimeField(auto_now=True)),
+                ("modified", models.DateTimeField(auto_now_add=True)),
+                (
+                    "certification_id",
+                    models.AutoField(primary_key=True, serialize=False),
+                ),
+                ("certification_date", models.DateTimeField(auto_now=True)),
+                (
+                    "certification_photo",
+                    models.FileField(blank=True, default="", upload_to="certification"),
+                ),
+                ("certification_comment", models.CharField(blank=True, max_length=255)),
+                (
+                    "challenge",
+                    models.ForeignKey(
+                        default="",
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="certification_challenge",
+                        to="challenge.challenge",
+                        verbose_name="challenge name",
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        default="",
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="certification_profile",
+                        to="user.profile",
+                        verbose_name="member name",
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
     ]

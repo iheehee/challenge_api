@@ -35,7 +35,7 @@ class Challenge(TimeStampModel):
     frequency = models.CharField(max_length=50, choices=FREQUENCY, default="")
     duration = models.CharField(max_length=50, choices=DURATIONS, null=True)
     certifications = models.ManyToManyField(
-        "Certification", related_name="Certifications", blank=True
+        "Certification", related_name="challenge_certifications", blank=True, default=""
     )
     start_time = models.CharField(max_length=30, default="", blank=True)
     end_time = models.CharField(max_length=30, default="", blank=True)
@@ -44,6 +44,7 @@ class Challenge(TimeStampModel):
     member = models.ManyToManyField(
         "user.Profile",
         through="ChallengeApply",
+        related_name="challenge_apply",
     )
     max_member = models.IntegerField(default=1, validators=[MaxValueValidator(20)])
     number_of_applied_member = models.PositiveIntegerField(default=1)
@@ -111,7 +112,7 @@ class ChallengeApply(models.Model):
     created = models.DateTimeField(auto_now=True)
 
 
-class Certification(TimeStampModel):
+class Certification(models.Model):
     certification_id = models.AutoField(primary_key=True)
     challenge = models.ForeignKey(
         "Challenge",
@@ -129,6 +130,6 @@ class Certification(TimeStampModel):
     )
     certification_date = models.DateTimeField(auto_now=True)
     certification_photo = models.FileField(
-        upload_to="certification", blank=True, default=""
+        upload_to="certification", blank=True, default="", null=True
     )
     certification_comment = models.CharField(max_length=255, blank=True)

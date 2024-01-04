@@ -79,9 +79,10 @@ class Profile(models.Model):
         "challenge.Challenge", through="challenge.ChallengeApply"
     )
     my_certifications = models.ManyToManyField(
-        "challenge.Challenge",
-        through="challenge.Certification",
+        "challenge.Certification",
         related_name="profile_certifications",
+        blank=True,
+        default="",
     )
 
     def __str__(self):

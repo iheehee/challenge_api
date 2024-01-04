@@ -1,4 +1,4 @@
-from .models import Challenge, ChallengeApply
+from .models import Challenge, ChallengeApply, Certification
 from rest_framework import serializers
 
 
@@ -31,3 +31,17 @@ class ChallengeSerializer(serializers.ModelSerializer):
         new_challenge = Challenge.objects.create(**validated_data, owner=user)
         ChallengeApply.object.create(challenge=new_challenge, user=user.profile)
         return new_challenge
+
+
+class CertificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Certification
+        fields = (
+            "certification_id",
+            "challenge",
+            "user",
+            "certification_date",
+            "certification_photo",
+            "certification_comment",
+        )
+        read_only_fields = ("certification_id",)

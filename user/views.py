@@ -17,9 +17,9 @@ from user.models import User
 
 class UserCreateView(APIView):
     """
-    (POST)      /api/users  회원 가입
-    (PATCH)     /api/users  회원 정보 수정
-    (DELETE)    /api/usrs   회원 정보 삭제
+    (POST)      /api/user  회원 가입
+    (PATCH)     /api/user  회원 정보 수정
+    (DELETE)    /api/user   회원 정보 삭제
     """
 
     def post(self, request):
