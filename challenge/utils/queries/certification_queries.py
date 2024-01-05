@@ -12,17 +12,12 @@ from core.miniframework.query_layer.data_query.query_methods import (
     QueryUpdator,
 )
 
+from rest_framework.pagination import PageNumberPagination
+from core.miniframework.tools.pagination import PaginationHandlerMixin
 
-class CustomPagination(pagination.PageNumberPagination):
-    def get_paginated_response(self, data):
-        return {
-            "links": {
-                "next": self.get_next_link(),
-                "previous": self.get_previous_link(),
-            },
-            "count": self.page.paginator.count,
-            "results": data,
-        }
+
+class CustomPagination(PageNumberPagination):
+    page_size = 2
 
 
 class CertificationQueryReader(QueryReader):
@@ -30,15 +25,14 @@ class CertificationQueryReader(QueryReader):
 
     challenge = None
 
-    def __call__(self, pk, certification_id):
+    def __call__(self, request, pk, certification_id):
         if certification_id == None:
             challenge = Certification.objects.filter(challenge_id=pk)
+
         else:
             challenge = Certification.objects.filter(certification_id=certification_id)
 
-        serializer = CertificationSerializer(challenge, many=True)
-
-        return serializer.data
+        return challenge
 
 
 class CertificationQueryCreator(QueryCreator):

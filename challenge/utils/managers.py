@@ -212,5 +212,5 @@ class CertificationManager(CRUDManager):
         # 생성
         return self._create(challenge_id, user, comment, image)
 
-    def get_certification_info(self, pk, certification_id=None):
-        return self._read(pk, certification_id)
+    def get_certification_info(self, request, pk, certification_id=None, view=None):
+        return self._read(request, pk, certification_id, view)

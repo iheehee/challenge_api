@@ -206,14 +206,22 @@ class CertificatinoCreateView(APIView):
         return Response(res, status.HTTP_201_CREATED)
 
 
-class CertificatinoListView(APIView):
+from rest_framework.pagination import PageNumberPagination
+
+
+class CertificatinoListView(APIView, PageNumberPagination):
     """
     (GET) /api/challenge/<pk:int>/certification/ 챌린지 인증 리스트 조회
     """
 
+    page_size = 2
+
     def get(self, request, pk):
         try:
-            res = CertificationManager().get_certification_info(pk)
+            view = self
+            res = CertificationManager().get_certification_info(request, pk, view=view)
+            """ results = self.paginate_queryset(res, request, view=self)
+            print(results) """
 
         except Exception:
             return Response(
