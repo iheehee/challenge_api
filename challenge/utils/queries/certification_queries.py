@@ -12,22 +12,23 @@ from core.miniframework.query_layer.data_query.query_methods import (
     QueryUpdator,
 )
 
-from rest_framework.pagination import PageNumberPagination
-from core.miniframework.tools.pagination import PaginationHandlerMixin
+from core.miniframework.tools.pagination import CustomPagination
 
 
-class CustomPagination(PageNumberPagination):
-    page_size = 2
-
-
-class CertificationQueryReader(QueryReader):
+class CertificationQueryReader(QueryReader, CustomPagination):
     """챌린지 인증을 조회하는 쿼리"""
 
+    page_size = 5
     challenge = None
 
     def __call__(self, request, pk, certification_id):
         if certification_id == None:
             challenge = Certification.objects.filter(challenge_id=pk)
+            pagination_query = self.paginated_query_set(
+                request=request, query_set=challenge
+            )
+            serializer = CertificationSerializer(pagination_query, many=True)
+            return self.paginated_response(request, pagination_query, serializer.data)
 
         else:
             challenge = Certification.objects.filter(certification_id=certification_id)
