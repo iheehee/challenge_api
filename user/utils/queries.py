@@ -5,20 +5,19 @@ from core.miniframework.query_layer.data_query.query_methods import (
     QueryReader,
     QueryCreator,
     QueryDestroyer,
-    QueryUpdator
+    QueryUpdator,
 )
 
 from user.models import User
 from user.serializers import UserSerializer
+
 
 class UserQueryReader(QueryReader):
     """
     유저 정보 읽기
     """
 
-    def __call__(self,
-                 email: Optional[str] = None,
-                 nickname: Optional[str] = None):
+    def __call__(self, email: Optional[str] = None, nickname: Optional[str] = None):
         obj = None
         try:
             if email:
@@ -35,23 +34,17 @@ class UserQueryCreator(QueryCreator):
     유저 생성
     """
 
-    def __call__(self, email: str, password: str, nickname: str):
-        req = {
-            'nickname': nickname,
-            'password': password,
+    def __call__(self, data):
+        # req = {"nickname": nickname, "password": password, "email": email}
 
-            'email': email
-        }
-        user_serializer = UserSerializer(data=req)
+        user_serializer = UserSerializer(data=data)
         user_serializer.is_valid(raise_exception=True)
         user_serializer.save()
         data = user_serializer.data
-
         # password 부분 삭제
-        del data['password']
-
+        del data["password"]
         return data
-    
+
 
 class UserQuery(QueryCRUDS):
     reader = UserQueryReader()

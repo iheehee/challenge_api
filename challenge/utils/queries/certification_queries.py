@@ -62,22 +62,23 @@ class CertificationQueryCreator(QueryCreator):
         return serializer.data
 
 
-class CertificationRemoveQuery(QueryDestroyer):
+class CertificationQueryDestroyer(QueryDestroyer):
     """인증 삭제를 위한 쿼리"""
 
-    def __call__(self, challenge_id, user):
+    @transaction.atomic()
+    def __call__(self, certification_id):
         try:
-            target_Applied_challenge = ChallengeApply.objects.get(
-                user=user.profile, challenge_id=challenge_id
+            target_certification = Certification.objects.get(
+                certification_id=certification_id
             )
         except:
-            raise ValueError("삭제하고자 하는 챌린지가 없습니다.")
-        target_Applied_challenge.delete()
-        message = "챌린지를 탈퇴하였습니다."
+            raise ValueError("삭제하고자 하는 인증이 없습니다.")
+        target_certification.delete()
+        message = "챌린지을 삭제하였습니다."
         return message
 
 
 class CertificationQuery(QueryCRUDS):
     reader = CertificationQueryReader()
     creator = CertificationQueryCreator()
-    # destroyer = ChallengeQueryLeave()
+    destroyer = CertificationQueryDestroyer()

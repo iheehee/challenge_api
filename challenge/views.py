@@ -216,8 +216,6 @@ class CertificatinoListView(APIView):
     def get(self, request, pk):
         try:
             res = CertificationManager().get_certification_info(request, pk)
-            """ results = self.paginate_queryset(res, request, view=self)
-            print(results) """
 
         except Exception:
             return Response(
@@ -271,3 +269,23 @@ class CertificatinoDetailView(APIView):
                 {"error": "server error"}, status.HTTP_500_INTERNAL_SERVER_ERROR
             )
         return Response(res, status.HTTP_201_CREATED)
+
+    def delete(self, request, certification_id):
+        try:
+            res = CertificationManager().remove_certification(
+                certification_id=certification_id,
+                access_token=request.headers["Access"],
+            )
+        except KeyError:
+            return Response({"error": "접근할 수 없는 API 입니다."}, status.HTTP_403_FORBIDDEN)
+        except TokenExpiredError:
+            return Response({"error": "토큰이 만료되었습니다."}, status.HTTP_403_FORBIDDEN)
+        except (PermissionError, jwt.exceptions.DecodeError):
+            return Response({"error": "유효한 토큰이 아닙니다."}, status.HTTP_403_FORBIDDEN)
+        except ValueError:
+            return Response({"error": "삭제하고자 하는 인증이 없습니다."}, status.HTTP_404_NOT_FOUND)
+        except Exception:
+            return Response(
+                {"error": "server error"}, status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+        return Response(res, status=status.HTTP_204_NO_CONTENT)

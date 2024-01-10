@@ -24,8 +24,9 @@ class UserCreateView(APIView):
 
     def post(self, request):
         req_data = request.data
+
         try:
-            res = AuthenticationRemoteManager().request_sign_up(**req_data)
+            res = AuthenticationRemoteManager().request_sign_up(req_data)
         except KeyError:
             return Response({"error": "접근할 수 없는 API 입니다."}, status.HTTP_403_FORBIDDEN)
         except serializers.ValidationError as e:

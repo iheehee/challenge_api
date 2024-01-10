@@ -214,3 +214,22 @@ class CertificationManager(CRUDManager):
 
     def get_certification_info(self, request, pk, certification_id=None):
         return self._read(request, pk, certification_id)
+
+
+def remove_certification(self, certification_id, access_token):
+    """ """
+    # 토큰 데이터 추출
+    issue, user_email = read_jwt(access_token)
+    user = User.objects.get(email=user_email)
+    user_lv = USER_LEVEL_MAP[user.level]
+
+    """
+    인증을 삭제하려면 로그인 상태여야 한다.
+    클라이언트 레벨 또는 관리자 레벨이어야 한다.
+    """
+    is_available = (AdminOnly(user_lv) | ClientOnly(user_lv)) & LoginOnly(issue)
+    if not bool(is_available):
+        raise PermissionError("Permission Failed")
+
+    # 삭제
+    return self._destroy(certification_id, access_token)

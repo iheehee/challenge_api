@@ -8,7 +8,7 @@ from user.utils.queries import UserQuery
 def check_login(_, email, password):
     # User Query를 사용하여 데이터 구하기
     user = UserQuery().read(email=email)
-
+    print(user)
     if not user:
         return False
     user_password = user["password"]

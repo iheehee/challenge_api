@@ -13,7 +13,7 @@ class AuthenticationRemoteManager(BaseManager, FrontendManagerLayer):
 
         return token
 
-    def request_sign_up(self, nickname, email, password):
+    def request_sign_up(self, data):
         """
         회원 가입
 
@@ -22,8 +22,4 @@ class AuthenticationRemoteManager(BaseManager, FrontendManagerLayer):
         """
 
         # 유저 생성 및 보내기
-        return UserQuery().create(
-            nickname=nickname,
-            email=email,
-            password=password,
-        )
+        return UserQuery().create(data)
