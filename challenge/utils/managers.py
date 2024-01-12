@@ -115,15 +115,17 @@ class ChallengeApplyManager(CRUDManager):
 
         # 토큰 데이터 추출
         issue, user_email = read_jwt(access_token)
+        print(user_email)
         user = User.objects.get(email=user_email)
         user_lv = USER_LEVEL_MAP[user.level]
+
         target_challenge_owner = Challenge.objects.filter(
             id=challenge_id
         ).select_related("owner")[0]
 
         target_challenge_member_list = Challenge.objects.filter(
             id=challenge_id
-        ).prefetch_related("member")
+        ).prefetch_related("profile_set")
 
         """ 
         챌린지에 참여하려면 로그인 상태여야 한다.
@@ -131,6 +133,7 @@ class ChallengeApplyManager(CRUDManager):
         본인이 만든 챌린지가 아니어야 한다.
         이미 참여한 참여자가 아니어야 한다.
         """
+
         is_available = LoginOnly(issue) & ClientOnly(user_lv)
         is_owner_joined = IsOwner(
             user_email, target_challenge_owner.owner.email

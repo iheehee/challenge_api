@@ -11,7 +11,10 @@ from access.utils.managers.frontend_managers import (
     AuthenticationRemoteManager,
 )
 
-# from user.utils.managers.frontend_manager import UserManager, PasswordMatchFailedError
+from core.miniframework.exc import TokenExpiredError
+from django.core.exceptions import ValidationError
+
+from user.utils.managers.managers import ProfileManager
 from user.models import User
 
 
@@ -36,3 +39,26 @@ class UserCreateView(APIView):
                 {"error": "server error"}, status.HTTP_500_INTERNAL_SERVER_ERROR
             )
         return Response(res, status.HTTP_201_CREATED)
+
+
+class ProfileView(APIView):
+    """ """
+
+    def get(self, request):
+        try:
+            res = ProfileManager().get_profile_info(
+                access_token=request.headers["Access"]
+            )
+        except KeyError:
+            return Response({"error": "접근할 수 없는 API 입니다."}, status.HTTP_403_FORBIDDEN)
+        except TokenExpiredError:
+            return Response({"error": "토큰이 만료되었습니다."}, status.HTTP_403_FORBIDDEN)
+        except (PermissionError, jwt.exceptions.DecodeError):
+            return Response({"error": "유효한 토큰이 아닙니다."}, status.HTTP_403_FORBIDDEN)
+        except (serializers.ValidationError, django.db.utils.IntegrityError) as e:
+            return Response(str(e), status.HTTP_400_BAD_REQUEST)
+        except Exception:
+            return Response(
+                {"error": "server error"}, status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+        return Response(res, status.HTTP_200_OK)

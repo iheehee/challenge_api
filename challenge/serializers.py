@@ -13,16 +13,14 @@ class ChallengeSerializer(serializers.ModelSerializer):
             "summery",
             "description",
             "start_day",
-            "frequency",
             "duration",
-            "notice",
-            "max_member",
-            "number_of_applied_member",
             "start_time",
             "end_time",
             "notice",
             "member",
             "certifications",
+            "max_member",
+            "number_of_applied_member",
         )
         read_only_fields = ("id",)
 

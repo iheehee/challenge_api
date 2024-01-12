@@ -3,7 +3,7 @@ from typing import Dict, Optional, List, Any
 from django.db import transaction
 from django.db.models import Q
 
-from challenge.models import Challenge, ChallengeApply, Certification
+from challenge.models import Challenge
 from challenge.serializers import ChallengeSerializer
 from core.miniframework.query_layer.data_query.query_cruds import QueryCRUDS
 from core.miniframework.query_layer.data_query.query_methods import (

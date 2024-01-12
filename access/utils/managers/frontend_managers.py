@@ -4,7 +4,7 @@ from access.utils.managers.backend_managers import LoginManager
 
 from core.miniframework.manager_layer.manager import BaseManager
 from core.miniframework.manager_layer.manager_layer import FrontendManagerLayer
-from user.utils.queries import UserQuery
+from user.utils.queries.user_queries import UserQuery
 
 
 class AuthenticationRemoteManager(BaseManager, FrontendManagerLayer):

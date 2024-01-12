@@ -2,7 +2,7 @@ from core.miniframework.query_layer.access_query.authenticator import (
     AuthenticateTokenGenerator,
 )
 from core.miniframework.tools.password import match_password
-from user.utils.queries import UserQuery
+from user.utils.queries.user_queries import UserQuery
 
 
 def check_login(_, email, password):
