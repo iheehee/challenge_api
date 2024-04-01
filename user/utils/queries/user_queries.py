@@ -35,8 +35,6 @@ class UserQueryCreator(QueryCreator):
     """
 
     def __call__(self, data):
-        # req = {"nickname": nickname, "password": password, "email": email}
-
         user_serializer = UserSerializer(data=data)
         user_serializer.is_valid(raise_exception=True)
         user_serializer.save()

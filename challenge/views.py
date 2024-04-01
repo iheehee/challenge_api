@@ -35,15 +35,16 @@ class ChallengeView(APIView):
 
 class ChallengeCreateView(APIView):
     """
-    (POST)  /api/company    회사 생성
+    (POST)  /api/challenge/create/    회사 생성
     """
 
     def post(self, request):
-        req_data = request.data
+        
         try:
             res = ChallengeManager().create_challenge(
-                challenge_data=req_data, access_token=request.headers["Access"]
+                challenge_data=literal_eval(request.data.get('document')), access_token=request.headers["Access"]
             )
+            
         except KeyError:
             return Response({"error": "접근할 수 없는 API 입니다."}, status.HTTP_403_FORBIDDEN)
         except TokenExpiredError:
@@ -56,7 +57,7 @@ class ChallengeCreateView(APIView):
             return Response(
                 {"error": "server error"}, status.HTTP_500_INTERNAL_SERVER_ERROR
             )
-        return Response(res, status.HTTP_201_CREATED)
+        return Response(data=res,status=status.HTTP_201_CREATED)
 
 
 class ChallengeDetailView(APIView):
@@ -102,11 +103,13 @@ class ChallengeDetailView(APIView):
         return Response(res, status.HTTP_200_OK)
 
     def delete(self, request, pk):
+        
         try:
             res = ChallengeManager().remove_challenge(
                 challenge_id=pk,
                 access_token=request.headers["Access"],
             )
+            print(res)
         except KeyError:
             return Response({"error": "접근할 수 없는 API 입니다."}, status.HTTP_403_FORBIDDEN)
         except TokenExpiredError:
@@ -114,12 +117,12 @@ class ChallengeDetailView(APIView):
         except (PermissionError, jwt.exceptions.DecodeError):
             return Response({"error": "유효한 토큰이 아닙니다."}, status.HTTP_403_FORBIDDEN)
         except ValueError:
-            return Response({"error": "삭제하고자 하는 회사가 없습니다."}, status.HTTP_404_NOT_FOUND)
+            return Response({"error": "삭제하고자 하는 챌린지가 없습니다."}, status.HTTP_404_NOT_FOUND)
         except Exception:
             return Response(
                 {"error": "server error"}, status.HTTP_500_INTERNAL_SERVER_ERROR
             )
-        return Response(res, status=status.HTTP_204_NO_CONTENT)
+        return Response(data=res, status=status.HTTP_204_NO_CONTENT)
 
 
 class ChallengeApplyView(APIView):
@@ -180,13 +183,13 @@ class CertificatinoCreateView(APIView):
 
     def post(self, request, pk):
         try:
-            document = request.data.get("document")
-            image = request.data.get("file")
+            #document = request.data.get("document")
+            #image = request.data.get("file")
             token = request.headers["Access"]
             res = CertificationManager().create_certification(
                 challenge_id=pk,
-                comment=document["certification_comment"],
-                image=image,
+                comment=None,
+                image=None,
                 access_token=token,
             )
         except KeyError:

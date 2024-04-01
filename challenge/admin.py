@@ -10,19 +10,19 @@ class ChallengeAdmin(admin.ModelAdmin):
         "owner",
         "title_banner",
         "summery",
-        "description",
-        "start_day",
-        "notice",
+
+
+
     )
 
 
-@admin.register(models.ChallengeApply)
+""" @admin.register(models.ChallengeApply)
 class ChallengeApplyAdmin(admin.ModelAdmin):
     list_display = (
-        "challenge",
+        "challenge_id",
         "user",
         "created",
-    )
+    ) """
 
 
 @admin.register(models.Certification)

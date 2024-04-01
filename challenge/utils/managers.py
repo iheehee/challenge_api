@@ -16,7 +16,7 @@ from core.miniframework.query_layer.access_query.permission import (
 from core.miniframework.manager_layer.manager import CRUDManager
 from core.miniframework.system_layer.jwt.jwt import read_jwt
 
-from user.models import User
+from user.models import User, Profile
 from challenge.models import Challenge
 
 
@@ -28,7 +28,7 @@ class ChallengeManager(CRUDManager):
 
     def create_challenge(self, challenge_data, access_token):
         """
-        회사 생성
+        챌린지 생성
 
         디코딩 실패: jwt.exceptions.DecodeError
         토큰 만료: TokenExpiredError
@@ -42,10 +42,9 @@ class ChallengeManager(CRUDManager):
         user = User.objects.get(email=email)
         user_lv = USER_LEVEL_MAP[user.level]
         # 챌린지를 만드려면 해당 유저는 로그인이 되어 있거나 Admin 이면 가능하다.
-
+        
         if not bool(AdminOnly(user_lv) | LoginOnly(issue)):
             raise PermissionError("Permission Failed")
-
         # 생성
         return self._create(challenge_data=challenge_data, user=user)
 
@@ -77,12 +76,17 @@ class ChallengeManager(CRUDManager):
         없는 챌린지를 삭제하려고 함: ValueError
         알수 없는 에러: exception
         """
-
+        
         # 토큰 데이터 추출
         issue, user_email = read_jwt(access_token)
         user = User.objects.get(email=user_email)
         user_lv = USER_LEVEL_MAP[user.level]
-        target_challenge_owner = Challenge.objects.get(id=challenge_id).owner.email
+        target_challenge = Challenge.objects.select_related('owner').filter(id=challenge_id)
+        
+        if len(target_challenge) == 0:
+            raise ValueError("Value Error")
+        
+        target_challenge_owner = target_challenge.first().owner.email
 
         """
         챌린지를 삭제하려면 
@@ -90,14 +94,13 @@ class ChallengeManager(CRUDManager):
         로그인 상태여야 한다.
         
         """
+        
         is_available = (
             IsOwner(user_email, target_challenge_owner) | AdminOnly(user_lv)
         ) & LoginOnly(issue)
-
         if not bool(is_available):
             raise PermissionError("Permission Failed")
-
-        self._destroy(challenge_id=challenge_id)
+        return self._destroy(challenge=target_challenge)
 
 
 class ChallengeApplyManager(CRUDManager):
@@ -191,29 +194,33 @@ class CertificationManager(CRUDManager):
 
         # 토큰 데이터 추출
         issue, user_email = read_jwt(access_token)
-        user = User.objects.get(email=user_email)
+        user = User.objects.select_related('nickname_id').get(email=user_email)
         user_lv = USER_LEVEL_MAP[user.level]
-
-        target_challenge_member_list = Challenge.objects.filter(
-            id=challenge_id
-        ).prefetch_related("profile_set")
-        joined_member_list = target_challenge_member_list[0].member.all()
+        created_challenge_list = user.nickname_id.my_closed_challenges.all()
+    
+        #joined_member_list = target_challenge_member_list[0].member.all()
+        target_challenge = Challenge.objects.select_related('owner').filter(id=challenge_id)
+        
+        if len(target_challenge) == 0:
+            raise ValueError("Value Error")
+        
+        target_challenge_owner = target_challenge.first().owner.email
 
         """ 
         챌린지 인증을 하려면 로그인 상태여야 한다.
         클라이언트 레벨이어야 한다.
-        가입된 챌린지어야 한다.
+        내가 만든 챌린지어야 한다.
         진행 중인 챌린지어야 한다.(쿼리단에서 구현)
         """
-        is_available = (LoginOnly(issue) & ClientOnly(user_lv)) & JoinedUser(
-            user.profile, joined_member_list
-        )
 
+        is_available = (
+            IsOwner(user.email, target_challenge_owner) | AdminOnly(user_lv)
+        ) & LoginOnly(issue)
         if not bool(is_available):
             raise PermissionError("Permission Failed")
-
+        
         # 생성
-        return self._create(challenge_id, user, comment, image)
+        return self._create(challenge_id, user_email, comment, image)
 
     def get_certification_info(self, request, pk, certification_id=None):
         return self._read(request, pk, certification_id)

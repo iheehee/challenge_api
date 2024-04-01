@@ -14,4 +14,6 @@ def match_password(password: str, user_password: str):
     """
     패스워드 매칭
     """
+    
+    print(bcrypt.checkpw(password.encode("utf-8"), user_password.encode("utf-8")))
     return bcrypt.checkpw(password.encode("utf-8"), user_password.encode("utf-8"))

@@ -21,7 +21,7 @@ class LoginView(APIView):
         """
         # 데이터 추출
         req_data = request.data
-        print(req_data)
+
         # 토큰 리턴
         try:
             token = AuthenticationRemoteManager().request_login(**req_data)

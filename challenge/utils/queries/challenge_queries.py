@@ -34,9 +34,10 @@ class ChallengeQueryCreator(QueryCreator):
     @transaction.atomic()
     def __call__(self, challenge_data, user):
         serializer = ChallengeSerializer(data=challenge_data, context={"user": user})
-        serializer.is_valid(raise_exception=True)
+        serializer.is_valid()
         serializer.save()
-        return serializer.data
+        message = {"result": "챌린지가 개설되었습니다"}
+        return message
 
 
 class ChallengeQueryUpdator(QueryUpdator):
@@ -51,10 +52,9 @@ class ChallengeQueryUpdator(QueryUpdator):
 
 class ChallengeQueryDestroyer(QueryDestroyer):
     @transaction.atomic()
-    def __call__(self, challenge_id):
-        challenge = Challenge.objects.filter(id=challenge_id)
+    def __call__(self, challenge):
         challenge.delete()
-        message = "챌린지가 삭제되었습니다."
+        message = {"result": "챌린지가 개설되었습니다"}
         return message
 
 

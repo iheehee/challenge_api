@@ -12,6 +12,7 @@ def check_login(_, email, password):
     if not user:
         return False
     user_password = user["password"]
+    
     return match_password(password, user_password)
 
 

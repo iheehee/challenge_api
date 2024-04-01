@@ -9,25 +9,24 @@ from django.contrib.auth.models import (
 class CustomUserManager(BaseUserManager):
     use_in_migrations = True
 
-    def create_user(self, email, nickname, password=None):
+    def create_user(self, email, password=None):
         if not email:
             raise ValueError("Users must have an email address")
-        if not nickname:
-            raise ValueError("Nickname empty")
+        
         if not password:
             raise ValueError("Password empty")
 
         user = self.model(
             email=self.normalize_email(email),
-            nickname=nickname,
+            
         )
 
         user.set_password(password)
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, email, nickname, password=None):
-        user = self.create_user(email, password=password, nickname=nickname)
+    def create_superuser(self, email, password=None):
+        user = self.create_user(email, password=password)
         user.is_admin = True
         user.is_superuser = True
         user.is_staff = True
@@ -48,7 +47,9 @@ class User(AbstractBaseUser, PermissionsMixin):
         max_length=255,
         unique=True,
     )
-    nickname = models.CharField(max_length=20, null=False, default="")
+    nickname_id = models.OneToOneField(
+        "Profile", related_name="user", on_delete=models.CASCADE, default="", null=True, blank=True
+    )
     level = models.IntegerField(
         verbose_name="사용자 레벨(client=1,admin=0)",
         default=1,
@@ -61,7 +62,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     date_joined = models.DateTimeField(auto_now_add=True)
 
     USERNAME_FIELD = "email"
-    REQUIRED_FIELDS = ["nickname"]
+    #REQUIRED_FIELDS = ["email"]
 
     class Meta:
         db_table = "user"
@@ -71,12 +72,10 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 
 class Profile(models.Model):
-    nickname = models.OneToOneField(
-        "User", related_name="profile", on_delete=models.CASCADE, default=""
-    )
+    nickname = models.CharField(max_length=20, null=True, default="")
     avatar = models.FileField(upload_to="avatar", blank=True, default="")
-    my_challenges = models.ManyToManyField(
-        "challenge.Challenge", through="challenge.ChallengeApply"
+    my_closed_challenges = models.ManyToManyField(
+        "challenge.Challenge",blank=True, default="", related_name="profile_my_closed_challenges",
     )
     my_certifications = models.ManyToManyField(
         "challenge.Certification",

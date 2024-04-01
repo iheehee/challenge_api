@@ -7,12 +7,12 @@ from . import models
 @admin.register(models.User)
 class UserAdmin(admin.ModelAdmin):
     list_display = (
-        "nickname",
         "email",
         "level",
+        "nickname_id",
     )
 
 
 @admin.register(models.Profile)
 class ProfileAdmin(admin.ModelAdmin):
-    list_display = ("id", "nickname_id", "avatar")
+    list_display = ("id", "nickname", "avatar")

@@ -18,7 +18,6 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = (
-            "nickname",
             "email",
             "password",
         )
@@ -30,6 +29,7 @@ class ProfileSerializer(serializers.ModelSerializer):
         fields = (
             "nickname",
             "avatar",
-            "my_challenges",
+            "my_closed_challenges",
             "my_certifications",
         )
+

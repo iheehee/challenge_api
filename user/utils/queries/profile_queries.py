@@ -9,7 +9,7 @@ from core.miniframework.query_layer.data_query.query_methods import (
 )
 
 from user.models import Profile
-from user.serializers import ProfileSerializer
+from user.serializers import ProfileSerializer, UserSerializer
 
 
 class ProfilerQueryReader(QueryReader):
@@ -18,32 +18,15 @@ class ProfilerQueryReader(QueryReader):
     """
 
     def __call__(self, query_set: Optional[object]):
-        profile_query_result = None
+        """ 
         try:
             profile_query_result = query_set.profile
 
         except Profile.DoesNotExist:
-            return None
-        return ProfileSerializer(profile_query_result).data
-
-
-class UserQueryCreator(QueryCreator):
-    """
-    유저 생성
-    """
-
-    def __call__(self):
-        # req = {"nickname": nickname, "password": password, "email": email}
-
-        user_serializer = UserSerializer(data=data)
-        user_serializer.is_valid(raise_exception=True)
-        user_serializer.save()
-        data = user_serializer.data
-        # password 부분 삭제
-        del data["password"]
-        return data
+            return None """
+        return ProfileSerializer(query_set).data
 
 
 class ProfileQuery(QueryCRUDS):
     reader = ProfilerQueryReader()
-    creator = UserQueryCreator()
+    

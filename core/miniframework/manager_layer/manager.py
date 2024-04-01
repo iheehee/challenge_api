@@ -40,7 +40,7 @@ class AuthenticationManager(BaseManager,
 
         :exception PermissionError: 유효하지 않은 사용자일 경우
         """
-        
+        print(self.check_auth(*args, **kwargs))
         if self.check_auth(*args, **kwargs):
             return self.token_generator.generate(info_for_token)
         else:
