@@ -40,20 +40,18 @@ class CertificationQueryCreator(QueryCreator):
     """챌린지 인증을 위한 쿼리"""
 
     @transaction.atomic()
-    def __call__(self, challenge_id, user, comment, image):
-        """
-        챌린지의 최대 인원이 모두 차있다면 참여할 수 없다.
-        """
-
+    def __call__(self, challenge_id, user, certification_id):
+        
         data = {
+            "certification_id": certification_id,
             "challenge": challenge_id,
-            "user": user.profile.id,
-            "certification_photo": image,
-            "certification_comment": comment,
+            "user": user.nickname_id.id
         }
 
         serializer = CertificationSerializer(data=data)
         serializer.is_valid()
+        print(serializer.errors)
+        
         if serializer.is_valid():
             serializer.save()
         else:

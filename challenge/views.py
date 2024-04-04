@@ -183,13 +183,14 @@ class CertificatinoCreateView(APIView):
 
     def post(self, request, pk):
         try:
-            #document = request.data.get("document")
+            certification_id = request.data.get("certification_id")
             #image = request.data.get("file")
             token = request.headers["Access"]
+            
             res = CertificationManager().create_certification(
                 challenge_id=pk,
-                comment=None,
-                image=None,
+                certification_id=certification_id,
+                
                 access_token=token,
             )
         except KeyError:

@@ -182,7 +182,7 @@ class ChallengeApplyManager(CRUDManager):
 class CertificationManager(CRUDManager):
     cruds_query = CertificationQuery()
 
-    def create_certification(self, challenge_id, comment, image, access_token):
+    def create_certification(self, challenge_id, certification_id, access_token):
         """
         챌린지 인증
 
@@ -195,8 +195,9 @@ class CertificationManager(CRUDManager):
         # 토큰 데이터 추출
         issue, user_email = read_jwt(access_token)
         user = User.objects.select_related('nickname_id').get(email=user_email)
+        user_email = user.email
         user_lv = USER_LEVEL_MAP[user.level]
-        created_challenge_list = user.nickname_id.my_closed_challenges.all()
+        #created_challenge_list = user.nickname_id.my_closed_challenges.all()
     
         #joined_member_list = target_challenge_member_list[0].member.all()
         target_challenge = Challenge.objects.select_related('owner').filter(id=challenge_id)
@@ -205,7 +206,6 @@ class CertificationManager(CRUDManager):
             raise ValueError("Value Error")
         
         target_challenge_owner = target_challenge.first().owner.email
-
         """ 
         챌린지 인증을 하려면 로그인 상태여야 한다.
         클라이언트 레벨이어야 한다.
@@ -214,13 +214,14 @@ class CertificationManager(CRUDManager):
         """
 
         is_available = (
-            IsOwner(user.email, target_challenge_owner) | AdminOnly(user_lv)
+            IsOwner(user_email, target_challenge_owner) | AdminOnly(user_lv)
         ) & LoginOnly(issue)
         if not bool(is_available):
             raise PermissionError("Permission Failed")
         
+        user_profile_id=user.nickname_id.id
         # 생성
-        return self._create(challenge_id, user_email, comment, image)
+        return self._create(challenge_id, user_profile_id, certification_id)
 
     def get_certification_info(self, request, pk, certification_id=None):
         return self._read(request, pk, certification_id)

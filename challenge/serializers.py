@@ -52,4 +52,4 @@ class CertificationSerializer(serializers.ModelSerializer):
             "certification_photo",
             "certification_comment",
         )
-        read_only_fields = ("certification_id",)
+        #read_only_fields = ("certification_id",)
