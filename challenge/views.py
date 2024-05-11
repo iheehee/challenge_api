@@ -183,15 +183,10 @@ class CertificatinoCreateView(APIView):
 
     def post(self, request, pk):
         try:
-            certification_id = request.data.get("certification_id")
-            #image = request.data.get("file")
-            token = request.headers["Access"]
-            
             res = CertificationManager().create_certification(
-                challenge_id=pk,
-                certification_id=certification_id,
-                
-                access_token=token,
+                data=literal_eval(request.data.get("document")),
+                image=request.data.get("image", None),
+                access_token=request.headers["Access"],
             )
         except KeyError:
             return Response({"error": "접근할 수 없는 API 입니다."}, status.HTTP_403_FORBIDDEN)
@@ -201,8 +196,6 @@ class CertificatinoCreateView(APIView):
             return Response({"error": "유효한 토큰이 아닙니다."}, status.HTTP_403_FORBIDDEN)
         except (serializers.ValidationError, django.db.utils.IntegrityError) as e:
             return Response(str(e), status.HTTP_400_BAD_REQUEST)
-        except ValidationError:
-            return Response({"error": "챌린지 참여 인원이 다 찼습니다."}, status.HTTP_409_CONFLICT)
         except Exception:
             return Response(
                 {"error": "server error"}, status.HTTP_500_INTERNAL_SERVER_ERROR
@@ -214,13 +207,20 @@ class CertificatinoListView(APIView):
     """
     (GET) /api/challenge/<pk:int>/certification/ 챌린지 인증 리스트 조회
     """
-
-    page_size = 2
-
+    
     def get(self, request, pk):
         try:
+            
+            
             res = CertificationManager().get_certification_info(request, pk)
-
+        except KeyError:
+            return Response({"error": "접근할 수 없는 API 입니다."}, status.HTTP_403_FORBIDDEN)
+        except TokenExpiredError:
+            return Response({"error": "토큰이 만료되었습니다."}, status.HTTP_403_FORBIDDEN)
+        except (PermissionError, jwt.exceptions.DecodeError):
+            return Response({"error": "유효한 토큰이 아닙니다."}, status.HTTP_403_FORBIDDEN)
+        except (serializers.ValidationError, django.db.utils.IntegrityError) as e:
+            return Response(str(e), status.HTTP_400_BAD_REQUEST)
         except Exception:
             return Response(
                 {"error": "server error"}, status.HTTP_500_INTERNAL_SERVER_ERROR

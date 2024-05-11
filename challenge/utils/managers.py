@@ -36,16 +36,16 @@ class ChallengeManager(CRUDManager):
         알수 없는 에러: exception
         유저 생성 실패: serializers.ValidationError
         """
-
         # 토큰 데이터 추출
         issue, email = read_jwt(access_token)
-        user = User.objects.get(email=email)
+        user = User.objects.select_related('nickname_id').get(email=email)
         user_lv = USER_LEVEL_MAP[user.level]
         # 챌린지를 만드려면 해당 유저는 로그인이 되어 있거나 Admin 이면 가능하다.
         
         if not bool(AdminOnly(user_lv) | LoginOnly(issue)):
             raise PermissionError("Permission Failed")
         # 생성
+        
         return self._create(challenge_data=challenge_data, user=user)
 
     def update_challenge(self, challenge_data, challenge_id, access_token):
@@ -182,7 +182,7 @@ class ChallengeApplyManager(CRUDManager):
 class CertificationManager(CRUDManager):
     cruds_query = CertificationQuery()
 
-    def create_certification(self, challenge_id, certification_id, access_token):
+    def create_certification(self, access_token, data, image):
         """
         챌린지 인증
 
@@ -191,14 +191,19 @@ class CertificationManager(CRUDManager):
         권한이 안됨: PermissionError
         알수 없는 에러: exception
         """
-
         # 토큰 데이터 추출
         issue, user_email = read_jwt(access_token)
         user = User.objects.select_related('nickname_id').get(email=user_email)
         user_email = user.email
         user_lv = USER_LEVEL_MAP[user.level]
+        
+        
+        #key_list = ['challenge_id', 'certification_num', 'certification_local_photo_url']
+        print(data)
+        challenge_id=data['challenge_id']
+        certification_num=data['certification_num']
+        certification_local_photo_url=data['certification_local_photo_url']
         #created_challenge_list = user.nickname_id.my_closed_challenges.all()
-    
         #joined_member_list = target_challenge_member_list[0].member.all()
         target_challenge = Challenge.objects.select_related('owner').filter(id=challenge_id)
         
@@ -218,13 +223,14 @@ class CertificationManager(CRUDManager):
         ) & LoginOnly(issue)
         if not bool(is_available):
             raise PermissionError("Permission Failed")
-        
         user_profile_id=user.nickname_id.id
+        
         # 생성
-        return self._create(challenge_id, user_profile_id, certification_id)
+        return self._create(challenge_id, user_profile_id, certification_num, certification_local_photo_url,image)
 
-    def get_certification_info(self, request, pk, certification_id=None):
-        return self._read(request, pk, certification_id)
+    def get_certification_info(self, request, pk):
+        
+        return self._read(request, pk)
 
 
 def remove_certification(self, certification_id, access_token):

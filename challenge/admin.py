@@ -11,8 +11,6 @@ class ChallengeAdmin(admin.ModelAdmin):
         "title_banner",
         "summery",
 
-
-
     )
 
 
@@ -26,12 +24,20 @@ class ChallengeApplyAdmin(admin.ModelAdmin):
 
 
 @admin.register(models.Certification)
-class CertificationAdmin(admin.ModelAdmin):
+class CertificationInfo(admin.ModelAdmin):
     list_display = (
-        "certification_id",
+        "id",
         "challenge_id",
         "user_profile_id",
+    )
+
+@admin.register(models.CertificationDetail)
+class CertificationAdmin(admin.ModelAdmin):
+    list_display =(
+        "certification_num",
         "certification_date",
         "certification_photo",
+        "certification_local_photo_url",
         "certification_comment",
+        "certification_id",
     )
