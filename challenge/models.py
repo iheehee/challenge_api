@@ -88,17 +88,11 @@ class Certification(models.Model):
         related_name="certification_profile",
         default="",
     )
-    
-
-class CertificationDetail(models.Model):
-    #id = models.AutoField(primary_key=True)
-    certification_num = models.IntegerField()
+    certification_num = models.IntegerField(default=0)
     certification_date = models.DateTimeField(auto_now=True)
     certification_photo = models.FileField(
         upload_to="certification", blank=True, default="", null=True
     )
     certification_local_photo_url = models.TextField(blank=True)
     certification_comment = models.CharField(max_length=255, blank=True)
-    certification_id = models.ForeignKey("Certification", on_delete=models.CASCADE,
-        related_name="certifications",
-        default="",)
+    

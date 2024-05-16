@@ -2,8 +2,8 @@ from typing import Dict, Optional, List, Any
 
 from django.db import transaction
 
-from challenge.models import Challenge, ChallengeApply, Certification, CertificationDetail
-from challenge.serializers import CertificationSerializer, CertificationDetailSerializer
+from challenge.models import Challenge, ChallengeApply, Certification
+from challenge.serializers import CertificationSerializer
 from core.miniframework.query_layer.data_query.query_cruds import QueryCRUDS
 from core.miniframework.query_layer.data_query.query_methods import (
     QueryReader,
@@ -23,11 +23,11 @@ class CertificationQueryReader(QueryReader, CustomPagination):
 
     def __call__(self, request, pk):
         
-        certification_query = Certification.objects.prefetch_related('certifications').get(challenge_id=pk)
+        certification_query = Certification.objects.filter(challenge_id=pk)
         """ pagination_query = self.paginated_query_set(
         request=request, query_set=challenge
             ) """
-        serializer = CertificationSerializer(instance=certification_query)
+        serializer = CertificationSerializer(instance=certification_query, many=True)
         
         return serializer.data
         #return self.paginated_response(request, pagination_query, serializer.data)
@@ -54,7 +54,7 @@ class CertificationQueryCreator(QueryCreator):
         """
         | 인증을 건너뛴 상태에서는 data 객체 내 certification_photo와 certification_local_photo_url 키의 데이터 값은 ""(빈문자열)이 된다.
         """
-        serializer = CertificationDetailSerializer(data=data, context={"certification":certification})
+        serializer = CertificationSerializer(data=data, context={"certification":certification})
         serializer.is_valid()
         print(serializer.errors)
         if serializer.is_valid():

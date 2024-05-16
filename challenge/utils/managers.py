@@ -199,7 +199,6 @@ class CertificationManager(CRUDManager):
         
         
         #key_list = ['challenge_id', 'certification_num', 'certification_local_photo_url']
-        print(data)
         challenge_id=data['challenge_id']
         certification_num=data['certification_num']
         certification_local_photo_url=data['certification_local_photo_url']

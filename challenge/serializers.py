@@ -1,4 +1,4 @@
-from .models import Challenge, Certification, CertificationDetail
+from .models import Challenge, Certification
 from user.models import Profile
 from rest_framework import serializers
 
@@ -40,26 +40,8 @@ class ChallengeSerializer(serializers.ModelSerializer):
         Certification.objects.create(user_profile_id=user_profile, challenge_id=new_challenge)
         return new_challenge
 
- 
-class CertificationDetailSerializer(serializers.ModelSerializer):
-    
-    class Meta:
-        model = CertificationDetail
-        fields = (
-            "certification_num",
-            "certification_date",
-            "certification_photo",
-            "certification_local_photo_url",
-            "certification_comment",
-        )
-    def create(self, validated_data):
-        certification = self.context['certification']
-        new_certification_detail = CertificationDetail.objects.create(**validated_data, certification_id=certification)
-
-        return new_certification_detail
 
 class CertificationSerializer(serializers.ModelSerializer):
-    certifications = CertificationDetailSerializer(many=True, read_only=True)
 
     class Meta:
         model = Certification
@@ -67,7 +49,11 @@ class CertificationSerializer(serializers.ModelSerializer):
             "id",
             "user_profile_id",
             "challenge_id",
-            "certifications",
+            "certification_num",
+            "certification_date",
+            "certification_photo",
+            "certification_local_photo_url",
+            "certification_comment",
         )
         read_only_fields = ("id",)
 
