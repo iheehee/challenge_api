@@ -33,7 +33,7 @@ class Certification(admin.ModelAdmin):
         "certification_date",
         "certification_photo",
         "certification_local_photo_url",
-        "certification_comment",
+        "certification_dairy",
         
     )
 

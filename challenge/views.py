@@ -2,17 +2,17 @@ from ast import literal_eval
 
 import django.db.utils
 import jwt.exceptions
-from rest_framework import status, serializers
+from django.core.exceptions import ValidationError
+from rest_framework import serializers, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from challenge.utils.managers import (
-    ChallengeManager,
-    ChallengeApplyManager,
     CertificationManager,
+    ChallengeApplyManager,
+    ChallengeManager,
 )
 from core.miniframework.exc import TokenExpiredError
-from django.core.exceptions import ValidationError
 
 
 # Create your views here.
@@ -274,12 +274,35 @@ class CertificatinoDetailView(APIView):
             )
         return Response(res, status.HTTP_201_CREATED)
 
+    def patch(self, request, certification_num, pk):
+        try:
+            res = CertificationManager().modify_certification(
+                data=literal_eval(request.data.get("document")),
+                image=request.data.get("image", None),
+                access_token=request.headers["Access"],
+            )
+        except KeyError:
+            return Response({"error": "접근할 수 없는 API 입니다."}, status.HTTP_403_FORBIDDEN)
+        except TokenExpiredError:
+            return Response({"error": "토큰이 만료되었습니다."}, status.HTTP_403_FORBIDDEN)
+        except (PermissionError, jwt.exceptions.DecodeError):
+            return Response({"error": "유효한 토큰이 아닙니다."}, status.HTTP_403_FORBIDDEN)
+        except (serializers.ValidationError, django.db.utils.IntegrityError) as e:
+            return Response(str(e), status.HTTP_400_BAD_REQUEST)
+        except ValidationError:
+            return Response({"error": "챌린지 참여 인원이 다 찼습니다."}, status.HTTP_409_CONFLICT)
+        except Exception:
+            return Response(
+                {"error": "server error"}, status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+        return Response(res, status.HTTP_201_CREATED)
+
     def delete(self, request, certification_id):
         try:
             res = CertificationManager().remove_certification(
                 certification_id=certification_id,
                 access_token=request.headers["Access"],
-            )
+                )
         except KeyError:
             return Response({"error": "접근할 수 없는 API 입니다."}, status.HTTP_403_FORBIDDEN)
         except TokenExpiredError:

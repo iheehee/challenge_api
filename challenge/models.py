@@ -94,5 +94,5 @@ class Certification(models.Model):
         upload_to="certification", blank=True, default="", null=True
     )
     certification_local_photo_url = models.TextField(blank=True)
-    certification_comment = models.CharField(max_length=255, blank=True)
+    certification_dairy = models.CharField(max_length=255, blank=True)
     

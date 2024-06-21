@@ -1,7 +1,8 @@
-import os
-import jwt
-import time
 import datetime
+import os
+import time
+
+import jwt
 
 from core.miniframework.exc import TokenExpiredError
 

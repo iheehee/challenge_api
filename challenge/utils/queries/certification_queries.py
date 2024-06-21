@@ -1,17 +1,16 @@
-from typing import Dict, Optional, List, Any
+from typing import Any, Dict, List, Optional
 
 from django.db import transaction
 
-from challenge.models import Challenge, ChallengeApply, Certification
+from challenge.models import Certification, Challenge, ChallengeApply
 from challenge.serializers import CertificationSerializer
 from core.miniframework.query_layer.data_query.query_cruds import QueryCRUDS
 from core.miniframework.query_layer.data_query.query_methods import (
-    QueryReader,
     QueryCreator,
     QueryDestroyer,
+    QueryReader,
     QueryUpdator,
 )
-
 from core.miniframework.tools.pagination import CustomPagination
 
 
@@ -28,8 +27,9 @@ class CertificationQueryReader(QueryReader, CustomPagination):
         request=request, query_set=challenge
             ) """
         serializer = CertificationSerializer(instance=certification_query, many=True)
-        
-        return serializer.data
+        result={"challenge_id": pk,
+                "certifications": serializer.data}
+        return result
         #return self.paginated_response(request, pagination_query, serializer.data)
 
         """ else:
@@ -43,10 +43,10 @@ class CertificationQueryCreator(QueryCreator):
 
     @transaction.atomic()
     def __call__(self, challenge_id, user_profile_id, certification_num, certification_local_photo_url, image):
-        
-        certification = Certification.objects.get(challenge_id=challenge_id)
 
         data = {
+            "challenge_id": challenge_id,
+            "user_profile_id": user_profile_id,
             "certification_num": certification_num,
             "certification_local_photo_url": certification_local_photo_url,
             "certification_photo": image,
@@ -54,9 +54,8 @@ class CertificationQueryCreator(QueryCreator):
         """
         | 인증을 건너뛴 상태에서는 data 객체 내 certification_photo와 certification_local_photo_url 키의 데이터 값은 ""(빈문자열)이 된다.
         """
-        serializer = CertificationSerializer(data=data, context={"certification":certification})
-        serializer.is_valid()
-        print(serializer.errors)
+        serializer = CertificationSerializer(data=data)
+        
         if serializer.is_valid():
             serializer.save()
         else:
@@ -64,6 +63,18 @@ class CertificationQueryCreator(QueryCreator):
 
         return serializer.data
 
+class CertificationeQueryUpdator(QueryUpdator):
+    """챌린지 인증 내용을 업데이트하기 위한 쿼리"""
+    def __call__(self, challenge_id, certification_num, image, data):
+
+        target_certification = Certification.objects.get(
+            challenge_id=challenge_id, certification_num=certification_num
+            )
+        serializer = CertificationSerializer(target_certification, data=data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        message = "인증 정보를 수정 하였습니다."
+        return message
 
 class CertificationQueryDestroyer(QueryDestroyer):
     """인증 삭제를 위한 쿼리"""
@@ -84,4 +95,5 @@ class CertificationQueryDestroyer(QueryDestroyer):
 class CertificationQuery(QueryCRUDS):
     reader = CertificationQueryReader()
     creator = CertificationQueryCreator()
+    updator = CertificationeQueryUpdator()
     destroyer = CertificationQueryDestroyer()

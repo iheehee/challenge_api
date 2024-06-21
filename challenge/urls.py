@@ -18,7 +18,7 @@ urlpatterns = [
     path("<int:pk>/certification/", CertificatinoListView.as_view()),
     path("<int:pk>/certification/create/", CertificatinoCreateView.as_view()),
     path(
-        "<int:pk>/certification/<int:certification_id>/",
+        "<int:pk>/certification/<int:certification_num>/",
         CertificatinoDetailView.as_view(),
     ),
 ]

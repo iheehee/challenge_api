@@ -46,14 +46,13 @@ class CertificationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Certification
         fields = (
-            "id",
             "user_profile_id",
             "challenge_id",
             "certification_num",
             "certification_date",
             "certification_photo",
             "certification_local_photo_url",
-            "certification_comment",
+            "certification_dairy",
         )
-        read_only_fields = ("id",)
+        read_only_fields = ()
 
