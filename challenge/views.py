@@ -275,10 +275,11 @@ class CertificatinoDetailView(APIView):
         return Response(res, status.HTTP_201_CREATED)
 
     def patch(self, request, certification_num, pk):
+        
         try:
             res = CertificationManager().modify_certification(
                 data=literal_eval(request.data.get("document")),
-                image=request.data.get("image", None),
+                image=request.data.get("file", None),
                 access_token=request.headers["Access"],
             )
         except KeyError:
@@ -289,8 +290,6 @@ class CertificatinoDetailView(APIView):
             return Response({"error": "유효한 토큰이 아닙니다."}, status.HTTP_403_FORBIDDEN)
         except (serializers.ValidationError, django.db.utils.IntegrityError) as e:
             return Response(str(e), status.HTTP_400_BAD_REQUEST)
-        except ValidationError:
-            return Response({"error": "챌린지 참여 인원이 다 찼습니다."}, status.HTTP_409_CONFLICT)
         except Exception:
             return Response(
                 {"error": "server error"}, status.HTTP_500_INTERNAL_SERVER_ERROR

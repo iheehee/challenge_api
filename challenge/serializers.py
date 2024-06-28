@@ -1,6 +1,8 @@
-from .models import Challenge, Certification
-from user.models import Profile
 from rest_framework import serializers
+
+from user.models import Profile
+
+from .models import Certification, Challenge
 
 """ class OpenChallengeSerializer(serializers.ModelSerializer):
     class Meta:
@@ -51,8 +53,7 @@ class CertificationSerializer(serializers.ModelSerializer):
             "certification_num",
             "certification_date",
             "certification_photo",
-            "certification_local_photo_url",
-            "certification_dairy",
+            "certification_diary",
         )
         read_only_fields = ()
 

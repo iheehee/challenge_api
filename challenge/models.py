@@ -1,7 +1,9 @@
-from django.db import models
-from core.models import TimeStampModel
-from django.core.validators import MaxValueValidator, FileExtensionValidator
 import os
+
+from django.core.validators import FileExtensionValidator, MaxValueValidator
+from django.db import models
+
+from core.models import TimeStampModel
 
 
 class Challenge(TimeStampModel):
@@ -91,8 +93,7 @@ class Certification(models.Model):
     certification_num = models.IntegerField(default=0)
     certification_date = models.DateTimeField(auto_now=True)
     certification_photo = models.FileField(
-        upload_to="certification", blank=True, default="", null=True
+        upload_to="certification", blank=True, default=""
     )
-    certification_local_photo_url = models.TextField(blank=True)
-    certification_dairy = models.CharField(max_length=255, blank=True)
+    certification_diary = models.CharField(max_length=255, blank=True)
     

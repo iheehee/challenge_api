@@ -202,7 +202,7 @@ class CertificationManager(CRUDManager):
         # key_list = ['challenge_id', 'certification_num', 'certification_local_photo_url']
         challenge_id = data["challenge_id"]
         certification_num = data["certification_num"]
-        certification_local_photo_url = data["certification_local_photo_url"]
+        
         # created_challenge_list = user.nickname_id.my_closed_challenges.all()
         # joined_member_list = target_challenge_member_list[0].member.all()
         target_challenge = Challenge.objects.select_related("owner").filter(
@@ -226,13 +226,12 @@ class CertificationManager(CRUDManager):
         if not bool(is_available):
             raise PermissionError("Permission Failed")
         user_profile_id = user.nickname_id.id
-
+        
         # 생성
         return self._create(
             challenge_id,
             user_profile_id,
             certification_num,
-            certification_local_photo_url,
             image,
         )
 
@@ -245,14 +244,15 @@ class CertificationManager(CRUDManager):
         권한이 안됨: PermissionError
         알수 없는 에러: exception
         """
+        print(data)
         issue, user_email = read_jwt(access_token)
         user = User.objects.select_related("nickname_id").get(email=user_email)
         user_email = user.email
         user_lv = USER_LEVEL_MAP[user.level]
-
+        
         challenge_id = data["challenge_id"]
         certification_num = data["certification_num"]
-        diary = data["diary"]
+        
 
         target_challenge = Challenge.objects.select_related("owner").filter(
             id=challenge_id
@@ -268,14 +268,12 @@ class CertificationManager(CRUDManager):
         내가 만든 챌린지어야 한다.
         진행 중인 챌린지어야 한다.(쿼리단에서 구현)
         """
-
         is_available = (
             IsOwner(user_email, target_challenge_owner) | AdminOnly(user_lv)
         ) & LoginOnly(issue)
         if not bool(is_available):
             raise PermissionError("Permission Failed")
 
-        #user_profile_id = user.nickname_id.id
         
         return self._update(challenge_id, certification_num, image, data)
 

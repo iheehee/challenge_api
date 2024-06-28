@@ -1,4 +1,5 @@
 from django.contrib import admin
+
 from . import models
 
 
@@ -32,8 +33,7 @@ class Certification(admin.ModelAdmin):
         "certification_num",
         "certification_date",
         "certification_photo",
-        "certification_local_photo_url",
-        "certification_dairy",
+        "certification_diary",
         
     )
 
